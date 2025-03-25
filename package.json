@@ -1,0 +1,12 @@
+{
+  "name": "booking-app",
+  "version": "1.0.0",
+  "description": "Applicazione per la prenotazione delle scrivanie",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

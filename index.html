@@ -1,0 +1,1745 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestionale Prenotazione Scrivanie</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Libreria SheetJS per generare file Excel-->
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!--librerie nell'head del tuo HTML per gestire i grafici e l'esportazione Excel-->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Popper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+  $(document).ready(function(){
+    $('[data-toggle="popover"]').popover();
+  });
+</script>
+    <!-- libreria open-source di Mozilla che permette di leggere e analizzare file PDF in JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+
+    <!-- worker per funzionare in modo efficiente pdf.js -->
+    <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+    </script>
+    <!-- libreria OCR come Tesseract.js per estrarre il testo dall'immagine del PDF -->
+    <script src="https://unpkg.com/tesseract.js@v5.0.0/dist/tesseract.min.js"></script>
+
+    <!-- Font Awesome per icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
+    <!-- Custom CSS (opzionale) -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            /* Tema Dark (default) */
+            --bg-body: #1f2937; /* bg-gray-900 */
+            --text-color: #e5e7eb; /* text-gray-200 */
+            --text-secondary: #9ca3af; /* text-gray-400 */
+            --text-tertiary: #6b7280; /* text-gray-500 */
+            --bg-container: #374151; /* bg-gray-700 */
+            --bg-container-dark: #1f2937; /* bg-gray-800 */
+            --bg-sidebar: #1f2937; /* bg-gray-800 */
+            --bg-table-header: #374151; /* bg-gray-700 */
+            --bg-table-hover: #4b5563; /* bg-gray-600 */
+            --bg-table-row-hover: #4a5568; /* hover:bg-gray-600 */
+            --btn-primary: #2563eb; /* bg-blue-600 */
+            --btn-primary-hover: #1d4ed8; /* bg-blue-700 */
+            --btn-danger: #dc2626; /* bg-red-600 */
+            --btn-danger-hover: #b91c1c; /* bg-red-700 */
+            --btn-success: #22c55e; /* bg-green-600 */
+            --btn-success-hover: #16a34a; /* bg-green-700 */
+            --border-color: #4b5563; /* border-gray-600 */
+            --border-color-light: #6b7280; /* border-gray-500 */
+            --border-color-dark: #374151; /* border-gray-700 */
+            --input-bg: #374151; /* bg-gray-700 */
+            --input-text: #ffffff; /* bianco per il testo degli input nel tema scuro */
+            --input-placeholder: #9ca3af; /* text-gray-400 per il placeholder */
+            --desk-full-day: #1e3a8a; /* bg-blue-900 */
+            --desk-morning: #2563eb; /* bg-blue-600 */
+            --desk-afternoon: #93c5fd; /* bg-blue-300 */
+            --desk-hover: #4b5563; /* hover:bg-gray-600 per il tema scuro */
+            --text-on-dark: #ffffff; /* bianco */
+            --text-on-light: #1f2937; /* text-gray-900 */
+            --link-color: #60a5fa; /* text-blue-400 */
+            --link-hover: #3b82f6; /* hover:text-blue-500 */
+            --shadow-color: rgba(0, 0, 0, 0.5); /* per shadow-md */
+          }
+        
+          /* Tema Light */
+          [data-theme="light"] {
+          --bg-body: #f8f9fa; /* sfondo chiaro */
+          --text-color: #1f2937; /* text-gray-900 */
+          --text-secondary: #6b7280; /* text-gray-500 */
+          --text-tertiary: #4b5563; /* text-gray-600 */
+          --bg-container: #ffffff; /* bianco */
+          --bg-container-dark: #e5e7eb; /* bg-gray-200 */
+          --bg-sidebar: #e5e7eb; /* bg-gray-200 */
+          --bg-table-header: #f3f4f6; /* bg-gray-100 */
+          --bg-table-hover: #e5e7eb; /* bg-gray-200 */
+          --bg-table-row-hover: #d1d5db; /* hover:bg-gray-300 */
+          --btn-primary: #93c5fd; /* bg-blue-300, un blu più chiaro */
+          --btn-primary-hover: #60a5fa; /* bg-blue-400, hover più scuro */
+          --btn-danger: #ef4444; /* bg-red-500 */
+          --btn-danger-hover: #dc2626; /* bg-red-600 */
+          --btn-success: #22c55e; /* bg-green-600 */
+          --btn-success-hover: #16a34a; /* bg-green-700 */
+          --border-color: #d1d5db; /* border-gray-300 */
+          --border-color-light: #9ca3af; /* border-gray-400 */
+          --border-color-dark: #9ca3af; /* border-gray-400 */
+          --input-bg: #f3f4f6; /* bg-gray-100 */
+          --input-text: #1f2937; /* text-gray-900 per il tema chiaro */
+          --input-placeholder: #6b7280; /* text-gray-500 per il placeholder */
+          --desk-full-day: #dbeafe; /* Blu chiaro */
+          --desk-morning: #bfdbfe; /* Blu medio */
+          --desk-afternoon: #eff6ff; /* Blu molto chiaro */
+          --desk-hover: #d1d5db; /* hover:bg-gray-300 per il tema chiaro */
+          --text-on-dark: #1f2937; /* text-gray-900 */
+          --text-on-light: #1f2937; /* text-gray-900 */
+          --link-color: #2563eb; /* text-blue-600 */
+          --link-hover: #1d4ed8; /* hover:text-blue-700 */
+          --shadow-color: rgba(0, 0, 0, 0.2); /* per shadow-md */
+        }
+        
+          /* Applica le variabili a tutto il gestionale */
+          body {
+            background-color: var(--bg-body) !important;
+            color: var(--text-color) !important;
+            position: relative;
+            overflow-x: hidden;
+          }
+        
+          /* Video di sfondo */
+        .fixed.top-0.left-0.w-full.h-full.z-0 {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 0;
+        }
+        
+        /* Overlay per scurire il video */
+        .fixed.top-0.left-0.w-full.h-full.z-0 .absolute.top-0.left-0.w-full.h-full {
+          background-color: var(--bg-body);
+          opacity: 0.7; /* Opacità base per il tema dark */
+        }
+        
+        /* Overlay per il tema light */
+        [data-theme="light"] .fixed.top-0.left-0.w-full.h-full.z-0 .absolute.top-0.left-0.w-full.h-full {
+          opacity: 0.5; /* Opacità ridotta per il tema light */
+        }
+        
+        
+        
+          /* Container principali (es. form e riepilogo prenotazioni) */
+          .bg-gray-800 {
+            background-color: var(--bg-container-dark) !important;
+          }
+        
+          .bg-gray-700 {
+            background-color: var(--bg-container) !important;
+          }
+        
+          /* Modali */
+          .bg-gray-800.text-gray-200 {
+            background-color: var(--bg-container-dark) !important;
+            color: var(--text-color) !important;
+          }
+        
+          /* Testi */
+          .text-gray-200 {
+            color: var(--text-color) !important;
+          }
+        
+          .text-gray-400 {
+            color: var(--text-secondary) !important;
+          }
+        
+          .text-gray-500 {
+            color: var(--text-tertiary) !important;
+          }
+        
+          /* Input e Select */
+          input, select {
+            background-color: var(--input-bg) !important;
+            color: var(--input-text) !important;
+            border-color: var(--border-color) !important;
+          }
+        
+          input:focus, select:focus {
+            outline: none !important;
+            ring: 2px solid var(--btn-primary) !important;
+          }
+        
+          input::placeholder, select::placeholder {
+            color: var(--input-placeholder) !important;
+          }
+        
+          /* Bottoni */
+          .bg-blue-600 {
+            background-color: var(--btn-primary) !important;
+          }
+        
+          .hover\:bg-blue-700:hover {
+            background-color: var(--btn-primary-hover) !important;
+          }
+        
+          .bg-blue-300 {
+            background-color: var(--desk-afternoon) !important;
+          }
+        
+          /*.bg-blue-600:not(.hover) {
+            background-color: var(--desk-morning) !important;
+          }*/
+        
+          .bg-blue-900 {
+            background-color: var(--desk-full-day) !important;
+          }
+        
+          .bg-red-600 {
+            background-color: var(--btn-danger) !important;
+          }
+        
+          .hover\:bg-red-700:hover {
+            background-color: var(--btn-danger-hover) !important;
+          }
+        
+          .bg-green-600 {
+            background-color: var(--btn-success) !important;
+          }
+        
+          .hover\:bg-green-700:hover {
+            background-color: var(--btn-success-hover) !important;
+          }
+        
+          /* Bordi */
+          .border-gray-600 {
+            border-color: var(--border-color) !important;
+          }
+        
+          .border-gray-700 {
+            border-color: var(--border-color-dark) !important;
+          }
+        
+          .border-gray-400 {
+            border-color: var(--border-color-light) !important;
+          }
+        
+          /* Tabelle */
+          table thead.bg-gray-700 {
+            background-color: var(--bg-table-header) !important;
+          }
+        
+          .hover\:bg-gray-600:hover {
+            background-color: var(--bg-table-hover) !important;
+          }
+        
+          tr:hover {
+            background-color: var(--bg-table-row-hover) !important;
+          }
+        
+          /* Scrivanie non prenotate */
+          .desk-not-booked {
+            background-color: var(--input-bg) !important;
+            color: var(--text-color) !important;
+          }
+        
+          .desk-not-booked:hover {
+            background-color: var(--desk-hover) !important;
+          }
+        
+          /* Link */
+          .text-blue-400 {
+            color: var(--link-color) !important;
+          }
+        
+          .hover\:underline:hover {
+            text-decoration: underline !important;
+          }
+        
+          .text-blue-400:hover {
+            color: var(--link-hover) !important;
+          }
+        
+          /* Ombre */
+          .shadow-md {
+            box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color) !important;
+          }
+        
+          /* Input (es. calendario) */
+          input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+          }
+        
+          [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0);
+          }
+        
+          /* Icone FontAwesome */
+          .fa-times {
+            color: var(--text-secondary) !important;
+          }
+        
+          /* Transizioni */
+          .modal-transition {
+            transition: opacity 0.3s ease;
+          }
+        
+          .transition-opacity {
+            transition: opacity 0.3s ease;
+          }
+          /* Stili per il video di sfondo e l'overlay */
+        #auth-section {
+          position: relative;
+          overflow: hidden; /* Nasconde eventuali parti del video che fuoriescono */
+        }
+        
+        /* Overlay per il tema dark */
+        #auth-section .bg-gray-900.bg-opacity-70 {
+          background-color: var(--bg-body);
+          opacity: 0.7; /* Opacità base per il tema dark */
+        }
+        
+        /* Overlay per il tema light */
+        [data-theme="light"] #auth-section .bg-gray-900.bg-opacity-70 {
+          background-color: var(--bg-body);
+          opacity: 0.5; /* Opacità ridotta per il tema light per un effetto più luminoso */
+        }
+        
+        
+        /* Stili per il contenuto sopra il video */
+        #auth-section .relative.z-20 {
+          background: transparent; /* Rende il contenuto trasparente per mostrare il video */
+        }
+        
+        /* Assicurati che deskGrid sia un flex container per il centramento verticale */
+        /* Stili per il contenitore del messaggio */
+        #deskGrid .col-span-full {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 20vh; /* Riduci l'altezza minima */
+        }
+        
+        /* Stili per il messaggio */
+        #no-date-message {
+          text-align: center;
+          font-size: 1.25rem; /* Dimensione del font simile a "Benvenuto, Vittorio" */
+          font-weight: 500; /* Peso del font */
+          color: var(--text-color); /* Colore del tema */
+          background-color: var(--bg-table-header); /* Sfondo opaco */
+          padding: 1.5rem 2rem; /* Spazio interno */
+          border-radius: 0.5rem; /* Bordi arrotondati */
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Ombra leggera */
+        }
+        
+        /* Responsive: riduci il padding su schermi piccoli */
+        @media (max-width: 640px) {
+          #no-date-message {
+            font-size: 1rem;
+            padding: 1rem 1.5rem;
+          }
+        }
+        
+        
+        [data-theme="light"] #confirmationCancel {
+          background-color: #d1d5db; /* gray-300 */
+          color: #1f2937; /* gray-800 */
+        }
+        
+        [data-theme="light"] #confirmationCancel:hover {
+          background-color: #9ca3af; /* gray-400 */
+        }
+        
+        [data-theme="light"] #confirmationOk {
+          background-color: #60a5fa; /* blue-400 */
+        }
+        
+        [data-theme="light"] #confirmationOk:hover {
+          background-color: #3b82f6; /* blue-500 */
+        }
+        
+        [data-theme="dark"] #confirmationCancel {
+          background-color: #4b5563; /* gray-700 */
+          color: #ffffff;
+        }
+        
+        [data-theme="dark"] #confirmationCancel:hover {
+          background-color: #374151; /* gray-800 */
+        }
+        
+        [data-theme="dark"] #confirmationOk {
+          background-color: #3b82f6; /* blue-500 */
+        }
+        
+        [data-theme="dark"] #confirmationOk:hover {
+          background-color: #2563eb; /* blue-600 */
+        }
+        
+        #confirmationCancel,
+        #confirmationOk {
+          padding: 0.5rem 1rem;
+          border-radius: 0.25rem;
+          transition: background-color 0.2s ease;
+        }
+        
+        /* Contenitore per la sezione di autenticazione (login/signup) */
+        .auth-container {
+          max-width: 30rem; /* Larghezza predefinita per login/signup (640px), puoi cambiarla */
+          width: 100%;
+          margin-left: auto;
+          margin-right: auto;
+          padding: 1.5rem;
+          background-color: var(--bg-container);
+          border-radius: 0.75rem;
+          box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+          position: relative;
+          z-index: 20;
+        }
+        
+        /* Contenitore per la sezione post-login (app) */
+        .app-container {
+          max-width: 70rem; /* Larghezza predefinita per post-login (1120px), puoi cambiarla */
+          width: 100%;
+          margin-left: auto;
+          margin-right: auto;
+          padding: 1.5rem;
+          background-color: var(--bg-container);
+          border-radius: 0.75rem;
+          box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+          position: relative;
+          z-index: 20;
+        }
+        
+        /* Regole responsive comuni */
+        @media (max-width: 640px) {
+          .auth-container,
+          .app-container {
+            max-width: 90%; /* Riduci la larghezza massima su schermi piccoli */
+            padding: 1rem;
+          }
+        }
+        
+        /* Adatta il contenitore su schermi piccoli */
+        @media (max-width: 640px) {
+          .card-container {
+            max-width: 90%; /* Riduci la larghezza massima su schermi piccoli */
+            padding: 1rem; /* Riduci il padding */
+          }
+        }
+        
+        #desk-grid,
+        .mt-8.bg-gray-800.p-6.rounded-lg.shadow-md {
+          margin: 1rem 0; /* Spazio verticale */
+        }
+        
+        .header-title {
+          text-align: center; /* Centra il testo orizzontalmente */
+          width: 100%; /* Assicura che occupi tutta la larghezza disponibile */
+        }
+        /* Modifica la modale principale */
+        #adminBookingsModal .bg-gray-800 {
+          max-height: 80vh; /* Altezza massima pari all'80% della viewport */
+          overflow-y: auto; /* Scroll verticale quando il contenuto supera l'altezza */
+        }
+        /* Assicura che la tabella si adatti al contenitore */
+        #adminBookingsModal .overflow-x-auto {
+          max-height: calc(80vh - 100px); /* Sottrae spazio per intestazione e padding */
+          overflow-y: auto; /* Scroll verticale per la tabella */
+        }
+        /* Modifica le altre modali */
+        #editBookingModal, 
+        #deleteBookingModal, 
+        #editBulkModal {
+          z-index: 1850 !important; /* Altre modali secondarie */
+        }
+        
+        /* Aggiungi questo per l'overlay */
+        .modal-overlay {
+          z-index: 1900 !important; /* Sopra le modali normali ma sotto i popup */
+        }
+        
+        #confirmationModal {
+          z-index: 2000 !important; /* Valore più alto di tutte le modali */
+        }
+        
+        /* Personalizza lo scroll per il tema dark predefinito */
+        #adminBookingsModal .bg-gray-800::-webkit-scrollbar {
+          width: 12px; /* Larghezza della barra di scorrimento */
+        }
+        
+        #adminBookingsModal .bg-gray-800::-webkit-scrollbar-track {
+          background: #1f2937; /* Colore dello sfondo della barra */
+        }
+        
+        #adminBookingsModal .bg-gray-800::-webkit-scrollbar-thumb {
+          background: #4b5563; /* Colore della parte mobile della barra */
+          border-radius: 6px; /* Arrotondamento */
+        }
+        
+        #adminBookingsModal .bg-gray-800::-webkit-scrollbar-thumb:hover {
+          background: #6b7280; /* Colore al passaggio del mouse */
+        }
+        #adminBookingsModal .overflow-x-auto::-webkit-scrollbar {
+          width: 12px;
+        }
+        
+        #adminBookingsModal .overflow-x-auto::-webkit-scrollbar-track {
+          background: #1f2937;
+        }
+        
+        #adminBookingsModal .overflow-x-auto::-webkit-scrollbar-thumb {
+          background: #4b5563;
+          border-radius: 6px;
+        }
+        
+        #adminBookingsModal .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+          background: #6b7280;
+        }
+        
+        /* Compatibilità con Firefox per il tema dark */ 
+        #adminBookingsModal .bg-gray-800 {
+          scrollbar-width: thin; /* Barra più sottile */
+          scrollbar-color: #4b5563 #1f2937; /*Colore thumb e traccia */
+        }
+        
+        #adminBookingsModal .overflow-x-auto {
+          scrollbar-width: thin;
+          scrollbar-color: #4b5563 #1f2937;
+        }
+        #adminBookingsModal {
+          /* Overlay */
+          background-color: rgba(0, 0, 0, 0.5);
+        
+          .bg-white {
+            background-color: var(--bg-container-dark); /* #1f2937 nel tema scuro */
+            color: var(--text-color); /* #e5e7eb nel tema scuro */
+            border-radius: 0.75rem;
+          }
+        
+          h3 {
+            color: var(--text-color);
+          }
+        
+        /* Tab */
+          #tab-bookings.active,
+          #tab-statistics.active {
+            border-color: var(--btn-primary); /* #2563eb nel tema scuro */
+            color: var(--btn-primary);
+          }
+        
+          #tab-bookings:not(.active),
+          #tab-statistics:not(.active) {
+            border-color: var(--border-color-light);
+            color: var(--text-secondary);
+          }
+        
+          #tab-bookings:hover:not(.active),
+          #tab-statistics:hover:not(.active) {
+            color: var(--link-hover); /* #3b82f6 nel tema scuro */
+          }
+        
+        /* Personalizza lo scroll della modale per il tema light */
+        [data-theme="light"] #adminBookingsModal .bg-gray-800::-webkit-scrollbar {
+          width: 12px; /* Larghezza della barra di scorrimento */
+        }
+        
+        [data-theme="light"] #adminBookingsModal .bg-gray-800::-webkit-scrollbar-track {
+          background: #f1f1f1; /* Colore dello sfondo della barra */
+        }
+        
+        [data-theme="light"] #adminBookingsModal .bg-gray-800::-webkit-scrollbar-thumb {
+          background: #c1c1c1; /* Colore della parte mobile della barra */
+          border-radius: 6px; /* Arrotondamento */
+        }
+        
+        [data-theme="light"] #adminBookingsModal .bg-gray-800::-webkit-scrollbar-thumb:hover {
+          background: #a1a1a1; /* Colore al passaggio del mouse */
+        }
+        
+        /* Compatibilità con Firefox per il tema light */
+        [data-theme="light"] #adminBookingsModal .bg-gray-800 {
+          scrollbar-width: thin; /* Barra più sottile */
+          scrollbar-color: #c1c1c1 #f1f1f1; /* Colore thumb e traccia */
+        }
+        
+        /* Compatibilità con Firefox per il tema light */
+        [data-theme="light"] #adminBookingsModal .bg-gray-800 {
+          scrollbar-width: thin; /* Barra più sottile */
+          scrollbar-color: #c1c1c1 #f1f1f1; /* Colore thumb e traccia */
+        }
+        
+        [data-theme="light"] #adminBookingsModal .overflow-x-auto {
+          scrollbar-width: thin;
+          scrollbar-color: #c1c1c1 #f1f1f1;
+        }
+        
+        /* Stile base per la sidebar */
+        #sidebar {
+          height: 100vh; /* Altezza totale della viewport */
+          max-height: 100vh; /* Limita l'altezza massima */
+          overflow-y: auto; /* Abilita lo scroll verticale quando necessario */
+          scrollbar-width: thin; /* Stile scroll sottile (Firefox) */
+          scrollbar-color: var(--text-secondary) var(--bg-container-dark); /* Colori scroll (Firefox) */
+        }
+        
+        /* Personalizza lo scroll per Webkit (Chrome, Edge, Safari) */
+        #sidebar::-webkit-scrollbar {
+          width: 8px; /* Larghezza della barra */
+        }
+        
+        #sidebar::-webkit-scrollbar-track {
+          background: var(--bg-container-dark); /* Sfondo della traccia */
+        }
+        
+        #sidebar::-webkit-scrollbar-thumb {
+          background: var(--text-secondary); /* Colore del thumb */
+          border-radius: 4px; /* Arrotondamento */
+        }
+        
+        #sidebar::-webkit-scrollbar-thumb:hover {
+          background: var(--text-tertiary); /* Colore al hover */
+        }
+        
+        /* Adatta l'altezza nel tema light */
+        [data-theme="light"] #sidebar {
+          scrollbar-color: var(--text-secondary) var(--bg-container-dark); /* Aggiorna i colori nel tema light se necessario */
+        }
+        
+        [data-theme="light"] #sidebar::-webkit-scrollbar-track {
+          background: var(--bg-container-dark);
+        }
+        
+        [data-theme="light"] #sidebar::-webkit-scrollbar-thumb {
+          background: var(--text-secondary);
+        }
+        
+        [data-theme="light"] #sidebar::-webkit-scrollbar-thumb:hover {
+          background: var(--text-tertiary);
+        }
+        
+        /* Assicurati che il contenuto interno sia flessibile */
+        #sidebar > nav {
+          flex-grow: 1; /* Permette al nav di occupare lo spazio disponibile */
+          overflow-y: auto; /* Scroll interno al nav se necessario */
+        }
+        
+        /* Mantieni i pulsanti in fondo visibili */
+        #sidebar > .p-4:last-child {
+          flex-shrink: 0; /* Impedisce ai pulsanti di ridursi */
+        }
+        
+        #sidebar {
+          height: calc(100vh - 64px); /* Adatta 64px all'altezza dell'header */
+          max-height: calc(100vh - 64px);
+        }
+        
+        @media (max-width: 640px) {
+          #sidebar {
+            w-56; /* Larghezza ridotta */
+          }
+        }
+        
+          /* Tema chiaro */
+          [data-theme="light"] .modal-content {
+            background-color: var(--bg-container); /* #ffffff nel tema chiaro */
+            color: var(--text-color); /* #1f2937 nel tema chiaro */
+          }
+        
+          [data-theme="light"] h2 {
+            color: var(--text-color);
+          }
+        
+          [data-theme="light"] label,
+          [data-theme="light"] p {
+            color: var(--text-secondary); /* #6b7280 nel tema chiaro */
+          }
+        
+          [data-theme="light"] input {
+            background-color: var(--input-bg); /* #f3f4f6 nel tema chiaro */
+            color: var(--input-text); /* #1f2937 nel tema chiaro */
+            border-color: var(--border-color); /* #d1d5db nel tema chiaro */
+          }
+        
+          [data-theme="light"] thead {
+            background-color: var(--bg-table-header); /* #f3f4f6 nel tema chiaro */
+          }
+        
+          [data-theme="light"] th,
+          [data-theme="light"] td {
+            border-bottom: 1px solid var(--border-color-light); /* #9ca3af nel tema chiaro */
+          }
+        
+          [data-theme="light"] #save-holidays-data {
+            background-color: var(--btn-primary); /* #93c5fd nel tema chiaro */
+            color: var(--text-on-light); /* #1f2937 */
+          }
+        
+          [data-theme="light"] #save-holidays-data:hover {
+            background-color: var(--btn-primary-hover); /* #60a5fa nel tema chiaro */
+          }
+        
+          [data-theme="light"] .fas.fa-times {
+            color: var(--text-secondary); /* #6b7280 nel tema chiaro */
+          }
+        
+          [data-theme="light"] .fas.fa-times:hover {
+            color: var(--text-color); /* #1f2937 nel tema chiaro */
+          }
+        }
+        
+        @media (max-width: 640px) {
+          #holidaysManagerModal .modal-content {
+            width: 90%; /* Usa il 90% della larghezza su mobile */
+            max-width: 90%;
+            padding: 1rem; /* Riduci padding */
+          }
+        
+          #holidaysManagerModal table {
+            font-size: 0.875rem; /* Riduci dimensione font per leggibilità */
+          }
+        
+          #holidaysManagerModal th,
+          #holidaysManagerModal td {
+            padding: 0.5rem; /* Riduci padding delle celle */
+          }
+        
+          #holidaysManagerModal input {
+            font-size: 0.875rem; /* Riduci font degli input */
+            padding: 0.25rem; /* Riduci padding interno */
+          }
+        
+          #holidaysManagerModal h5 {
+            font-size: 1.25rem; /* Riduci dimensione del titolo */
+          }
+        
+          #holidaysManagerModal button#save-holidays-data {
+            width: 100%; /* Pulsante a larghezza piena */
+            padding: 0.75rem; /* Aumenta padding per facilitare il tocco */
+            font-size: 1rem; /* Font leggibile */
+          }
+        
+          #holidaysManagerModal .grid-cols-2 {
+            grid-template-columns: 1fr; /* Una colonna su mobile */
+          }
+        }
+        
+        /* Rendi il pulsante di chiusura più facile da toccare */
+        #holidaysManagerModal #close-holidays-manager-modal {
+          font-size: 1.5rem;
+          padding: 0.25rem;
+        }
+        
+        #userProfileModal {
+        z-index: 100 !important;
+        }
+
+/* Popover nel tema LIGHT */
+[data-theme="light"] .popover {
+  background-color: white !important; 
+  color: black !important; 
+  border: 1px solid #ccc !important;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .popover-body {
+  color: black !important;
+}
+
+/* Popover nel tema DARK */
+[data-theme="dark"] .popover {
+  background-color: #374151 !important; /* Grigio scuro */
+  color: white !important;
+  border: 1px solid #4b5563 !important; /* Bordo grigio */
+  box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .popover-body {
+  color: white !important;
+}
+
+/* Imposta una larghezza massima più contenuta */
+.popover {
+  max-width: 400px !important; /* Riduce la larghezza del popover */
+  word-wrap: break-word; /* Assicura che il testo vada a capo */
+  font-size: 14px; /* Rende il testo più compatto */
+  padding: 8px; /* Spaziatura interna più bilanciata */
+}
+
+/* Migliora la leggibilità del testo */
+.popover-body {
+  font-size: 13px;
+  padding: 10px;
+  text-align: left;
+}
+
+/* Su mobile riduci ulteriormente la larghezza */
+@media (max-width: 600px) {
+  .popover {
+    max-width: 250px !important; /* Ancora più compatto su schermi piccoli */
+    font-size: 12px;
+  }
+
+
+/* Forza il titolo e l'icona a rimanere sulla stessa riga */
+.popover-label {
+  display: inline-flex;  
+  align-items: center;  /* Centra verticalmente */
+  gap: 2px; /* Distanza tra testo e icona */
+  white-space: nowrap; /* Impedisce l'andata a capo */
+}
+
+            /* Transizioni per modali */
+            .modal-transition { transition: opacity 0.3s ease; }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200">
+    <!-- Video di sfondo per l'intera pagina -->
+    <div class="fixed top-0 left-0 w-full h-full z-0">
+        <video autoplay muted loop playsinline preload="auto" class="w-full h-full object-cover opacity-50">
+            <source src="https://videos.pexels.com/video-files/17552070/17552070-hd_1920_1080_24fps.mp4" type="video/mp4">
+            <img src="assets/images/fallback-image.jpg" alt="Sfondo alternativo" class="w-full h-full object-cover">
+        </video>
+        <!-- Overlay per scurire il video -->
+        <div class="absolute top-0 left-0 w-full h-full bg-gray-900 bg-opacity-70"></div>
+    </div>
+
+    <!-- Contenitore principale -->
+    <div class="relative z-10 flex flex-col min-h-screen">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-6">
+            <h1 class="header-title text-3xl font-bold mb-4 text-white">Gestionale Prenotazione Scrivanie</h1>
+
+            <!-- eventualmente altri controlli per desktop -->
+            <div id="auth-controls" class="space-x-2 hidden md:flex">
+                <!-- eventuali bottoni extra -->
+            </div>
+        </header>
+
+        <!-- Sidebar nascosta (inizialmente tradotta fuori dalla viewport) -->
+        <!-- Sezione Sidebar -->
+        <aside id="sidebar" class="fixed top-0 right-0 h-full w-64 bg-gray-800 text-gray-200 transform translate-x-full transition-transform duration-300 ease-in-out z-50 flex flex-col">
+            <!-- Header della sidebar -->
+            <div class="p-4 border-b border-gray-700 flex items-center justify-between">
+                <h2 class="text-xl font-bold">Menu</h2>
+                <button id="close-sidebar" class="focus:outline-none">
+
+                </button>
+            </div>
+
+            <!-- Contenuto principale della sidebar -->
+            <nav class="p-4 flex-grow">
+                <ul class="space-y-4">
+                    <!-- Esempio di altri bottoni -->
+                    <li>
+                        <button id="btn-edit-profile" class="w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">
+                            Modifica Profilo
+                        </button>
+                    </li>
+                    <li>
+                        <a href="#" id="sidebar-open-holidays-manager" class="flex items-center p-2 bg-blue-600 hover:bg-blue-700">
+                            <span class="ms-3">Gestione Ferie e Permessi</span>
+                        </a>
+                    </li>
+                    <!-- Menu Admin con sottomenu, se necessario -->
+                    <li id="admin-menu-sidebar" class="hidden">
+                        <button id="btn-admin-menu" class="w-full relative px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded"> Menu Admin
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <ul id="admin-submenu-sidebar" class="hidden pl-4 mt-2 space-y-2">
+                            <li>
+                                <a href="#" id="sidebar-open-role-modal" class="block px-4 py-2 hover:bg-blue-600 rounded">
+              Assegna Ruolo Admin
+            </a>
+                            </li>
+                            <li>
+                                <a href="#" id="sidebar-open-room-modal" class="block px-4 py-2 hover:bg-blue-600 rounded">
+              Assegna Stanza
+            </a>
+                            </li>
+                            <li>
+                                <a href="#" id="sidebar-open-delete-user-modal" class="block px-4 py-2 hover:bg-blue-600 rounded">
+              Cancella Utente
+            </a>
+                            </li>
+                            <li>
+                                <a href="#" id="sidebar-open-admin-bookings" class="block px-4 py-2 hover:bg-blue-600 rounded">
+        Prenotazioni di Altri Utenti
+      </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- Altri link utili o voci del menu, se presenti -->
+                    <li class="mt-6 border-t border-gray-700 pt-4">
+                        <span class="block text-center font-semibold mb-2">Link Utili</span>
+                        <ul class="space-y-2">
+                            <li>
+                                <a href="https://webcdg.bvtechricerca.it/Login.aspx" target="_blank" class="flex items-center text-blue-400 hover:underline">
+                                    <i class="fas fa-external-link-alt mr-2"></i> CDG Controllo Di Gestione
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://saas.hrzucchetti.it/hrpbvtech/jsp/login.jsp" target="_blank" class="flex items-center text-blue-400 hover:underline">
+                                    <i class="fas fa-external-link-alt mr-2"></i> Portale Zucchetti
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://elearn.bvtechricerca.it" target="_blank" class="flex items-center text-blue-400 hover:underline">
+                                    <i class="fas fa-external-link-alt mr-2"></i> eLearning BV-Tech
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Bottone per cambiare tema -->
+            <div class="p-4 border-t border-gray-700">
+                <button id="theme-toggle-btn" class="w-full text-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">
+                    <i class="fas fa-sun mr-2"></i> Cambia Tema
+                </button>
+            </div>
+
+            <!-- Bottone Logout posizionato in fondo -->
+            <div class="p-4 border-t border-gray-700">
+                <button id="btn-logout" class="w-full text-center px-4 py-2 bg-red-600 hover:bg-red-700 rounded">
+                    Logout
+                </button>
+            </div>
+
+        </aside>
+        <!-- Sezione di Autenticazione -->
+        <div id="auth-section" class="auth-container mx-auto p-6 bg-gray-800 rounded-lg shadow-md">
+
+            <!-- Form Login (sempre visibile) -->
+            <div id="login-container" class="w-full p-4">
+                <h2 class="text-xl font-semibold mb-3 flex items-center">
+      <i class="fas fa-sign-in-alt mr-2"></i> Accedi
+    </h2>
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium">Email</label>
+                        <input type="email" id="login-email" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium">Password</label>
+                        <input type="password" id="login-password" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Accedi</button>
+                </form>
+                <p id="login-error" class="text-red-500 text-sm mt-2 hidden"></p>
+                <p class="text-sm text-center mt-2">
+                    <a href="forgot-password.html" class="text-blue-400 hover:underline">Password dimenticata?</a>
+                </p>
+                <p class="text-sm text-center mt-2">
+                    Non hai un account? <a href="#" id="show-signup" class="text-blue-400 hover:underline">Registrati</a>
+                </p>
+            </div>
+
+            <!-- Form Registrazione (nascosto inizialmente) -->
+            <div id="signup-container" class="w-full p-4 hidden">
+                <h2 class="text-xl font-semibold mb-3 flex items-center">
+      <i class="fas fa-user-plus mr-2"></i> Registrati
+    </h2>
+                <form id="signup-form" class="space-y-4">
+                    <div>
+                        <label for="signup-firstname" class="block text-sm font-medium">Nome</label>
+                        <input type="text" id="signup-firstname" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label for="signup-lastname" class="block text-sm font-medium">Cognome</label>
+                        <input type="text" id="signup-lastname" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="mb-4">
+    <label for="register-company" class="block text-sm font-medium">Azienda</label>
+    <select id="register-company" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+        <option value="" disabled selected>Seleziona un'azienda</option>
+        <option value="progesi">Progesi</option>
+        <option value="bvtech">Bvtech</option>
+        <option value="tbridge">Tbridge</option>
+    </select>
+    
+</div>
+                    <div>
+                        <label for="signup-email" class="block text-sm font-medium">Email</label>
+                        <input type="email" id="signup-email" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+
+                    <div>
+                        <label for="signup-password" class="block text-sm font-medium">Password</label>
+                        <input type="password" id="signup-password" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Registrati</button>
+                </form>
+                <p id="signup-success" class="text-green-500 text-sm mt-2 hidden"></p>
+                <p id="signup-error" class="text-red-500 text-sm mt-2 hidden"></p>
+                <p class="text-sm text-center mt-2">
+                    Hai già un account? <a href="#" id="show-login" class="text-blue-400 hover:underline">Accedi</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Overlay per chiudere la sidebar cliccando fuori -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
+
+        <!-- Sezione Applicazione (dopo il login) -->
+        <div id="app-section" class="app-container bg-gray-800 rounded-lg shadow-md mt-8 hidden">
+            <!-- Tasto cerchio fisso in alto a destra -->
+
+            <div id="menu-container" class="w-full flex justify-end mb-4">
+
+                <button id="profile-btn" class="fixed top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold cursor-pointer z-50" style="background-color: var(--btn-primary); color: var(--text-on-dark);">
+                    <span id="user-initials"></span>
+                    <img id="user-profile-pic" class="w-full h-full rounded-full object-cover hidden" src="" alt="Foto Profilo">
+                </button>
+
+                <button id="hamburger-btn" class="text-gray-200 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Benvenuto, <span id="user-name"></span></h2>
+                <div class="flex items-center space-x-4">
+                    <button id="logout-btn" <!--class="py-2 px-4 bg-red-600 hover:bg-red-700 rounded" -->
+                        <!--<i class="fas fa-sign-out-alt mr-2"></i>-->
+                    </button>
+                    <button id="edit-profile-btn" <!--class="py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded" -->
+                        <!--<i class="fas fa-user-edit mr-2"></i> Modifica Profilo-->
+                    </button>
+                    <!-- Menu Admin: visibile solo per gli admin -->
+                    <div id="admin-dropdown" class="relative hidden">
+                        <button id="adminMenuButton" <!--class="py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded inline-flex items-center" -->
+                            <!--<i class="fas fa-cogs mr-2"></i> Menu Admin <i class="fas fa-chevron-down ml-1"></i>-->
+                        </button>
+                        <ul id="admin-menu" class="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded shadow-lg hidden">
+                            <li><a href="#" id="open-role-modal" class="block px-4 py-2 hover:bg-blue-600">Assegna Ruolo Admin</a></li>
+                            <li><a href="#" id="open-room-modal" class="block px-4 py-2 hover:bg-blue-600">Assegna Stanza</a></li>
+                            <li><a href="#" id="open-delete-user-modal" class="block px-4 py-2 hover:bg-blue-600">Cancella Utente</a></li>
+                            <!--<li><a href="#" id="open-delete-booking-modal" class="block px-4 py-2 hover:bg-blue-600">Cancella Prenotazioni</a></li>-->
+                        </ul>
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controlli Prenotazione -->
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+                <div class="mb-4">
+                    <label for="booking-date" class="block text-sm font-medium">Seleziona la data:</label>
+                    <input type="date" id="booking-date" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div class="mb-4">
+                    <label for="room-select" class="block text-sm font-medium">Seleziona Stanza:</label>
+                    <select id="room-select" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500">
+                        <!-- Opzioni generate dinamicamente -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Griglia delle Scrivanie -->
+            <div id="desk-grid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4"></div>
+
+            <!-- Riepilogo Prenotazioni -->
+            <div class="mt-8 bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-4">Riepilogo Prenotazioni</h3>
+
+                <div id="admin-bookings-section" class="hidden">
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full table-auto">
+                            <thead class="--bg-table-header">
+                                <tr>
+                                    <th class="p-2 text-left">Data</th>
+                                    <th class="p-2 text-left">Stanza</th>
+                                    <th class="p-2 text-left">Slot</th>
+                                    <th class="p-2 text-left">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-bookings-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="admin-pagination" class="flex justify-between items-center mt-4">
+                        <div class="text-sm text-gray-400">
+                            Pagina <span id="admin-current-page">1</span> di <span id="admin-total-pages">1</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="admin-prev-page" class="px-3 py-1 --bg-table-header rounded hover:bg-gray-600">&lt;</button>
+                            <button id="admin-next-page" class="px-3 py-1 --bg-table-header rounded hover:bg-gray-600">&gt;</button>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+
+                <!-- Modal Admin: Assegna Ruolo Admin con Riepilogo -->
+                <div id="adminRoleModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('adminRoleModal')">&times;</button>
+                        <h5 class="text-xl font-semibold mb-4">Assegna Ruolo Admin</h5>
+                        <form id="admin-role-form" class="space-y-4">
+                            <div>
+                                <label for="admin-user-email" class="block text-sm font-medium">Seleziona Utente:</label>
+                                <select id="admin-user-email" class="w-full p-2 rounded --bg-table-header border border-gray-600"></select>
+                            </div>
+                            <div class="flex space-x-4">
+                                <button type="submit" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Assegna Admin</button>
+                                <button type="button" id="remove-admin-btn" class="flex-1 py-2 bg-red-600 hover:bg-red-700 rounded font-semibold">Rimuovi Admin</button>
+                            </div>
+                        </form>
+                        <!-- Riepilogo Admin -->
+                        <div id="admin-summary" class="mt-4 --bg-table-header p-2 rounded">
+                            <h6 class="text-lg font-semibold mb-2">Riepilogo Admin</h6>
+                            <ul id="admin-summary-list" class="text-sm"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Admin: Assegna Stanza con Riepilogo -->
+                <div id="adminRoomModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('adminRoomModal')">&times;</button>
+                        <h5 class="text-xl font-semibold mb-4">Assegna Stanza</h5>
+                        <form id="admin-room-form" class="space-y-4">
+                            <div>
+                                <label for="admin-room-user-email" class="block text-sm font-medium">Seleziona Utente:</label>
+                                <select id="admin-room-user-email" class="w-full p-2 rounded --bg-table-header border border-gray-600"></select>
+                            </div>
+                            <div>
+                                <label for="admin-room-select" class="block text-sm font-medium">Seleziona Stanza/e:</label>
+                                <select id="admin-room-select" class="w-full p-2 rounded --bg-table-header border border-gray-600" multiple></select>
+                            </div>
+                            <div class="flex space-x-4">
+                                <button type="submit" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Assegna Stanza</button>
+                                <button type="button" id="remove-room-btn" class="flex-1 py-2 bg-red-600 hover:bg-red-700 rounded font-semibold">Rimuovi Assegnazione</button>
+                            </div>
+                        </form>
+                        <!-- Riepilogo Stanze Assegnate -->
+                        <div id="room-assignment-summary" class="mt-4 --bg-table-header p-2 rounded">
+                            <h6 class="text-lg font-semibold mb-2">Riepilogo Stanze Assegnate</h6>
+                            <ul id="room-assignment-summary-list" class="text-sm"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Admin: Cancella Utente -->
+                <div id="deleteUserModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('deleteUserModal')">&times;</button>
+                        <h5 class="text-xl font-semibold mb-4">Cancella Utente</h5>
+                        <form id="delete-user-form" class="space-y-4">
+                            <div>
+                                <label for="delete-user-select" class="block text-sm font-medium">Seleziona Utente:</label>
+                                <select id="delete-user-select" class="w-full p-2 rounded --bg-table-header border border-gray-600">
+                                    <!-- Le opzioni saranno caricate dinamicamente -->
+                                </select>
+                            </div>
+                            <div>
+                                <button type="submit" class="w-full py-2 bg-red-600 hover:bg-red-700 rounded font-semibold">Cancella Utente</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- 2. Aggiungi la nuova modale per la cancellazione delle prenotazioni -->
+                <div id="deleteBookingModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('deleteBookingModal')">&times;</button>
+
+                        <h5 class="text-xl font-semibold mb-4">Gestione Prenotazioni</h5>
+
+                        <!-- Filtri in riga singola -->
+                        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                            <div class="flex-1">
+                                <label for="booking-filter-user" class="block text-sm font-medium mb-1">Utente</label>
+                                <input type="text" id="booking-filter-user" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm" placeholder="Cerca nome...">
+                            </div>
+
+                            <div class="flex-1">
+                                <label for="bookingfilter-room" class="block text-sm font-medium mb-1">Stanza</label>
+                                <select id="booking-filter-room" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm">
+                                    <option value="">Tutte</option>
+                                </select>
+                            </div>
+
+                            <div class="flex-1">
+                                <label for="booking-filter-date" class="block text-sm font-medium mb-1">Data</label>
+                                <input type="date" id="booking-filter-date" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm">
+                            </div>
+                        </div>
+
+
+                        <div class="max-h-96 overflow-y-auto">
+                            <table class="w-full">
+                                <thead class="--bg-table-header">
+                                    <tr>
+                                        <th class="p-2 text-left">
+                                            <input type="checkbox" id="select-all-bookings" class="rounded border-gray-400 text-blue-600 focus:ring-blue-500">
+                                        </th>
+                                        <th class="p-2 text-left">Utente</th>
+                                        <th class="p-2 text-left">Data</th>
+                                        <th class="p-2 text-left">Stanza</th>
+                                        <th class="p-2 text-left">Scrivania</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="all-bookings-list" class="text-sm">
+                                    <!-- Le prenotazioni verranno caricate qui -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="admin-bookings-container" class="hidden">
+                    <div id="user-bookings-section" class="hidden mt-6">
+
+                        <button class="w-full text-left text-secondary font-semibold mb-2">
+
+                        </button>
+                        <div id="user-bookings-content" class="hidden">
+
+
+                            <!-- Filtri -->
+                            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                                <div class="flex-1">
+                                    <label for="filter-user" class="block text-sm font-medium">Utente</label>
+                                    <input type="text" id="filter-user-old" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm" placeholder="Cerca per nome o cognome...">
+                                </div>
+
+                                <div class="flex-1">
+                                    <label for="filter-date" class="block text-sm font-medium">Data</label>
+                                    <input type="date" id="filter-date-old" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm">
+                                </div>
+
+                                <div class="flex-1">
+                                    <label for="filter-room" class="block text-sm font-medium">Stanza</label>
+                                    <select id="filter-room-old" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm">
+                                        <option value="">Tutte</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 mb-4">
+                                <button id="delete-selected-bookings-old" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded hidden" disabled>
+                                    Elimina Selezionati
+                                </button>
+                                <button id="edit-selected-bookings-old" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded hidden" disabled>
+                                    Modifica Selezionati
+                                </button>
+                            </div>
+                            <!-- Riepilogo delle prenotazioni selezionate -->
+                            <div class="text-sm text-gray-400 mb-4">
+                                Prenotazioni selezionate: <span id="selected-count-old">0</span>
+                            </div>
+                            <!--  Tabella -->
+                            <div class="overflow-x-auto">
+
+                                <table class="min-w-full table-auto">
+                                    <thead class="--bg-table-header">
+                                        <tr>
+                                            <th class="p-2">
+                                                <input type="checkbox" id="select-all-user-bookings-old" class="rounded border-gray-400 text-blue-600 focus:ring-blue-500">
+                                            </th>
+                                            <th class="p-2 text-left">Utente</th>
+                                            <th class="p-2 text-left">Data</th>
+                                            <th class="p-2 text-left">Stanza</th>
+                                            <th class="p-2 text-left">Slot</th>
+                                            <th class="p-2 text-left">Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="all-bookings-list"></tbody>
+                                </table>
+                                <!--controlli di paginazione nell'HTML-->
+                                <div class="flex justify-between items-center mt-4">
+                                    <div class="text-sm text-gray-400">
+                                        Pagina <span id="current-page-old">1</span> di <span id="total-pages-old">1</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button id="prev-page-old" class="px-3 py-1 --bg-table-header rounded hover:bg-gray-600">&lt;</button>
+                                        <button id="next-page-old" class="px-3 py-1 --bg-table-header rounded hover:bg-gray-600">&gt;</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Prenotazione -->
+                <div id="bookingModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('bookingModal')">&times;</button>
+                        <h5 class="text-xl font-semibold mb-4">Prenota Scrivania</h5>
+                        <form id="booking-form" class="space-y-4">
+                            <div>
+                                <label for="booking-slot-select" class="block text-sm font-medium">Tipologia di Prenotazione:</label>
+                                <select id="booking-slot-select" class="w-full p-2 rounded --bg-table-header border border-gray-600">
+                                    <option value="Intera giornata">Intera giornata</option>
+                                    <option value="Mezza giornata (Mattina)">Mezza giornata (Mattina)</option>
+                                    <option value="Mezza giornata (Pomeriggio)">Mezza giornata (Pomeriggio)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="booking-user-select" class="block text-sm font-medium">Prenota per</label>
+                                <select id="booking-user-select" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500 hidden">
+                                    <!-- Opzioni generate dinamicamente -->
+                                </select>
+                                <input type="text" id="booking-name" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Conferma Prenotazione</button>
+                        </form>
+                    </div>
+                </div>
+                <!-- Modal Gestione Ferie e Permessi -->
+                <div id="holidaysManagerModal" class="modal hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div class="modal-content bg-gray-800 rounded-lg shadow-lg w-full max-w-3xl p-6 sm:p-4 relative transform transition-all duration-300 scale-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <h5 class="text-xl font-semibold">Gestione Ferie e Permessi</h5>
+                            <button id="close-holidays-manager-modal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="p-4 overflow-y-auto max-h-[80vh]">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="hire-date" class="block text-sm font-medium text-gray-200">Data di Assunzione</label>
+                                    <input type="date" id="hire-date" class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-200">Residui Anni Precedenti</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <input type="number" id="residual-vacation" placeholder="Ferie" min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+                                        <input type="number" id="residual-permits" placeholder="Permessi" min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+                                        <input type="number" id="residual-rol" placeholder="ROL" min="0" step="0.01" class="mt-1 block w-full rounded-md border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+    <!--<label for="pdf-upload" class="block text-gray-200 font-medium mb-2">Carica PDF Ferie e Permessi</label>
+    <input type="file" id="pdf-upload" accept="application/pdf" class="w-full rounded-md border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">-->
+                                </div>
+                            </div>
+                            <table class="min-w-full border-collapse">
+    <!-- Nuova intestazione -->
+    <thead>
+        <tr>
+            <th class="px-4 py-2 text-left text-gray-200 font-semibold">Categoria</th>
+            <th class="px-4 py-2 text-left text-gray-200 font-semibold">Ferie (GG) <i class="fas fa-question-circle text-blue-500 cursor-pointer"
+     data-toggle="popover"
+     data-trigger="hover focus"
+     data-placement="right"
+     data-container=".modal"
+     data-html="true"
+     data-content="Nel CCNL Commercio si ha diritto a 26 giorni lavorativi di ferie all'anno cioè 2.16667 giorni al mese (26 giorni ÷ 12 mesi).<br>Il calcolo delle ferie si basa su una settimana lavorativa di sei giorni (lunedì-sabato), escludendo domeniche e festività quindi ogni giorno di ferie inserito vale 1.2 giorni nei calcoli.">
+  </i></th>
+            <th class="px-4 py-2 text-left text-gray-200 font-semibold">Perm.Ex. Fest.(ORE) <i class="popover-label fas fa-question-circle text-blue-500 cursor-pointer"
+     data-toggle="popover"
+     data-trigger="hover focus"
+     data-placement="right"
+     data-container=".modal"
+     data-html="true"
+     data-content="Nel CCNL Commercio, i permessi ex festività sono stati introdotti per compensare la cancellazione di alcune festività religiose che non sono più giorni festivi a livello nazionale. <br>Caratteristiche:<br>Quantità: 32 ore annue di permessi ex festività per tutti i lavoratori. <br>Maturazione: I permessi maturano mensilmente in ragione di 1/12 del totale annuo, ovvero circa 2,66 ore al mese. <br>Possono essere utilizzati a gruppi di 4 o 8 ore.">
+  </i></th>
+            <th class="px-4 py-2 text-left text-gray-200 font-semibold">ROL (ORE)<i class="fas fa-question-circle text-blue-500 cursor-pointer"
+     data-toggle="popover"
+     data-trigger="hover focus"
+     data-placement="right"
+     data-container=".modal"
+     data-html="true"
+     data-content="Nel CCNL Commercio, i permessi ROL (Riduzione Orario di Lavoro), per i lavoratori assunti dopo il 26 febbraio 2011 in aziende con più di 15 dipendenti, si calcolano come di seguito:<br>72 ore annue di permessi ROL cioè 6 ore di permessi ROL al mese (72 ore ÷ 12 mesi).<br><b>Primi due anni</b>: 0 ore di ROL (solo 32 ore di ex festività)<br><b>Terzo e quarto anno:</b> 36 ore di ROL (50% del totale) + 32 ore di ex festività = 68 ore<br><b>Dal quinto anno:</b> 72 ore di ROL + 32 ore di ex festività = 104 ore<br>I permessi ROL maturanos u base mensile;<br>Nei mesi in cui il dipendente ha lavorato per almeno 15 giorni;<br>In ogni mese di lavoro continuativo, anche con assenze retribuite;<br>Una volta maturate, le ore di ROL possono essere utilizzate dal mese successivo.">
+  </i></th>
+        </tr>
+    </thead>
+    <tbody id="holidays-table">
+        <!-- Riga per i maturati del mese precedente -->
+        <tr>
+            <td class="px-4 py-2 text-gray-200">Maturati Anno Corrente (<span id="matured-months-counter">0</span> mesi)</td>
+            <td id="vacation-previous-month" class="px-4 py-2 text-gray-200">0</td>
+            <td id="permits-previous-month" class="px-4 py-2 text-gray-200">0</td>
+            <td id="rol-previous-month" class="px-4 py-2 text-gray-200">0</td>
+        </tr>
+        <!-- Riga per i disponibili anno corrente -->
+        <tr>
+            <td class="px-4 py-2 text-gray-200">Disponibili Anno Corrente</td>
+            <td id="vacation-available" class="px-4 py-2 text-gray-200">26</td>
+            <td id="permits-available" class="px-4 py-2 text-gray-200">32</td>
+            <td id="rol-available" class="px-4 py-2 text-gray-200">0</td>
+        </tr>
+        <!-- Riga per gli usati -->
+        <tr>
+            <td class="px-4 py-2 text-gray-200">Usati Anno Corrente</td>
+            <td class="px-4 py-2">
+                <input type="number" id="vacation-used" min="0" step="0.01" value="0" class="w-full rounded-md border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+            </td>
+            <td class="px-4 py-2">
+                <input type="number" id="permits-used" min="0" step="0.01" value="0" class="w-full rounded-md border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+            </td>
+            <td class="px-4 py-2">
+                <input type="number" id="rol-used" min="0" step="0.01" value="0" class="w-full rounded-md border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+            </td>
+        </tr>
+        <!-- Riga per i rimanenti totali -->
+        <tr>
+            <td class="px-4 py-2 text-gray-200">Rimanenti Totali</td>
+            <td id="vacation-remaining" class="px-4 py-2 text-gray-200">0</td>
+            <td id="permits-remaining" class="px-4 py-2 text-gray-200">0</td>
+            <td id="rol-remaining" class="px-4 py-2 text-gray-200">0</td>
+        </tr>
+    </tbody>
+</table>
+                            <p id="seniority-info" class="mt-2 text-xs text-gray-500"></p>
+                            <p class="mt-2 text-xs text-gray-500">Note</p>
+                            <p class="mt-2 text-xs text-gray-500">Per i dipendenti Progesi, i Maturati Anno Corrente vengono aggiornati in automatico il 5 del mese in corso.</p>
+                            <p class="mt-2 text-xs text-gray-500">Per i dipendenti Bvtech, i Maturati Anno Corrente vengono aggiornati in automatico il 27 del mese in corso.</p>
+                            <button id="save-holidays-data" class="mt-4 w-full sm:w-auto px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-md text-white">Salva Dati</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Modifica Prenotazione -->
+                <div id="editBookingModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('editBookingModal')">&times;</button>
+                        <h5 class="text-xl font-semibold mb-4">Modifica Prenotazione</h5>
+                        <form id="edit-booking-form" class="space-y-4">
+                            <div>
+                                <label for="edit-booking-slot-select" class="block text-sm font-medium">Tipologia di Prenotazione:</label>
+                                <select id="edit-booking-slot-select" class="w-full p-2 rounded --bg-table-header border border-gray-600">
+                                    <option value="Intera giornata">Intera giornata</option>
+                                    <option value="Mezza giornata (Mattina)">Mezza giornata (Mattina)</option>
+                                    <option value="Mezza giornata (Pomeriggio)">Mezza giornata (Pomeriggio)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="edit-booking-name" class="block text-sm font-medium">Nome e Cognome</label>
+                                <input type="text" id="edit-booking-name" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <button type="submit" class="w-full py-2 bg-green-600 hover:bg-green-700 rounded font-semibold">Conferma Modifica</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="editBulkModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('editBulkModal')">&times;</button>
+                        <h5 class="text-xl font-semibold mb-4">Modifica Prenotazioni Selezionate</h5>
+                        <form id="edit-bulk-form" class="space-y-4">
+                            <div>
+                                <label for="edit-bulk-slot-select" class="block text-sm font-medium">Nuovo Slot</label>
+                                <select id="edit-bulk-slot-select" class="w-full p-2 rounded --bg-table-header border border-gray-600">
+                                    <option value="Intera giornata">Intera giornata</option>
+                                    <option value="Mezza giornata (Mattina)">Mezza giornata (Mattina)</option>
+                                    <option value="Mezza giornata (Pomeriggio)">Mezza giornata (Pomeriggio)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Conferma Modifica</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Aggiungi questo codice dopo la modale editBulkModal -->
+                <div id="bookingDetailsModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('bookingDetailsModal')">&times;</button>
+                        <h5 class="text-xl font-semibold mb-4">Dettagli Prenotazione</h5>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium">Utente:</label>
+                                <p id="detail-user" class="w-full p-2 rounded --bg-table-header"></p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Slot:</label>
+                                <p id="detail-slot" class="w-full p-2 rounded --bg-table-header"></p>
+                            </div>
+                            <div class="flex space-x-4">
+                                <button id="edit-detail-btn" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Modifica</button>
+                                <button id="delete-detail-btn" class="flex-1 py-2 bg-red-600 hover:bg-red-700 rounded font-semibold">Elimina</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <!-- Script principale -->
+                <script type="module" src="main.js"></script>
+                <!-- Funzioni per modali e dropdown -->
+                <script>
+                    function showModal(modalId) {
+                      document.getElementById(modalId).classList.remove('hidden');
+                      document.getElementById(modalId).style.opacity = 1;
+                    }
+                    function hideModal(modalId) {
+                      document.getElementById(modalId).classList.add('hidden');
+                    }
+                    // Dropdown Admin: gestione visibilità
+                    document.getElementById('adminMenuButton')?.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                      document.getElementById('admin-menu').classList.toggle('hidden');
+                    });
+                    window.addEventListener('click', () => {
+                      document.getElementById('admin-menu').classList.add('hidden');
+                    });
+                    // Event listener per le opzioni del menu admin
+                    document.getElementById('open-role-modal')?.addEventListener('click', (e) => {
+                      e.preventDefault();
+                      showModal('adminRoleModal');
+                      loadAdminSummary();
+                    });
+                    document.getElementById('open-room-modal')?.addEventListener('click', (e) => {
+                      e.preventDefault();
+                      showModal('adminRoomModal');
+                      loadRoomAssignmentSummary();
+                    });
+                
+                    
+                    // Gestione del toggle tra login e signup
+                document.getElementById('show-signup').addEventListener('click', (e) => {
+                  e.preventDefault();
+                  document.getElementById('login-container').classList.add('hidden');
+                  document.getElementById('signup-container').classList.remove('hidden');
+                });
+                
+                document.getElementById('show-login').addEventListener('click', (e) => {
+                  e.preventDefault();
+                  document.getElementById('signup-container').classList.add('hidden');
+                  document.getElementById('login-container').classList.remove('hidden');
+                });
+                </script>
+                <!-- Modal di Conferma Personalizzata -->
+                <div id="confirmationModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition z-50">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <p id="confirmationMessage" class="mb-4 text-lg"></p>
+                        <div class="flex justify-end space-x-4">
+                            <button id="confirmationCancel" class="px-4 py-2 bg-gray-600 hover:--bg-table-header rounded">Annulla</button>
+                            <button id="confirmationOk" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Conferma</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Profilo Utente -->
+                <div id="userProfileModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden modal-transition ">
+                    <div class="bg-gray-800 text-gray-200 rounded-lg shadow-lg w-full max-w-md p-6 relative">
+                        <button class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-gray-300" onclick="hideModal('userProfileModal')">&times;</button>
+                        <h5 class="text-xl font-semibold mb-4">Modifica Profilo</h5>
+                        <div class="p-4 overflow-y-auto max-h-[80vh]">
+                            <form id="user-profile-form" class="space-y-4">
+                                <div>
+                                    <label for="profile-firstname" class="block text-sm font-medium">Nome</label>
+                                    <input type="text" id="profile-firstname" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+                                    <label for="profile-lastname" class="block text-sm font-medium">Cognome</label>
+                                    <input type="text" id="profile-lastname" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+        <label for="profile-company" class="block text-sm font-medium">Azienda</label>
+        <select id="profile-company" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required>
+        <option value="" disabled>Seleziona azienda</option>
+        <option value="progesi">Progesi</option>
+        <option value="bvtech">BVTech</option>
+        <option value="tbridge">TBridge</option>
+    </select>
+    </div>
+                                <div>
+                                    <label for="profile-email" class="block text-sm font-medium">Email</label>
+                                    <input type="email" id="profile-email" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500" required disabled>
+                                </div>
+                                <div>
+                                    <label for="profile-password" class="block text-sm font-medium">Nuova Password</label>
+                                    <input type="password" id="profile-password" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500">
+                                    <small class="text-gray-400">Lascia vuoto per non cambiare la password.</small>
+                                </div>
+                                <!-- Nuovo campo per la foto profilo -->
+                                <div>
+                                    <label for="profile-picture" class="block text-sm font-medium">Foto Profilo</label>
+                                    <div class="flex items-center space-x-4">
+                                        <img id="profile-picture-preview" class="w-16 h-16 rounded-full object-cover" src="" alt="Anteprima" style="display: none;">
+                                        <div class="flex-1">
+                                            <input type="file" id="profile-picture" accept="image/*" class="w-full p-2 rounded --bg-table-header border border-gray-600 focus:ring-2 focus:ring-blue-500">
+                                            <button type="button" id="remove-profile-picture" class="mt-2 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm hidden">Rimuovi foto</button>
+                                        </div>
+                                    </div>
+                                    <small class="text-gray-400">Carica un'immagine (max 5MB)</small>
+                                </div>
+                                <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">Salva Modifiche</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Prenotazioni di Altri Utenti -->
+                <div id="adminBookingsModal" class="fixed inset-0 z-50 hidden overflow-auto bg-black bg-opacity-50 flex justify-center items-start pt-10">
+                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-11/12 max-w-6xl">
+                        <!-- Intestazione della modale -->
+                        <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Prenotazioni di Altri Utenti</h3>
+                            <button id="close-adminBookingsModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <!-- Tabs Navigation -->
+                        <div class="border-b border-gray-200 dark:border-gray-700">
+                            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
+                                <li class="mr-2">
+                                    <button id="tab-bookings" class="inline-block p-4 border-b-2 border-blue-600 dark:border-blue-500 rounded-t-lg active text-blue-600 dark:text-blue-500">
+                                        Prenotazioni
+                                    </button>
+                                </li>
+                                <li class="mr-2">
+                                    <button id="tab-statistics" class="inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
+                                        Statistiche
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Tab Content: Prenotazioni -->
+                        <div id="content-bookings" class="p-4">
+
+                            <!-- Qui inserisci il contenuto precedentemente visibile nel toggle -->
+                            <div class="overflow-x-auto">
+
+                            </div>
+                            <!-- Filtri -->
+                            <div class="flex flex-col md:flex-row gap-4 mb-4">
+                                <div class="flex-1">
+                                    <label for="filter-user" class="block text-sm font-medium">Utente</label>
+                                    <input type="text" id="filter-user" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm" placeholder="Cerca per nome o cognome...">
+                                </div>
+
+                                <div class="flex-1">
+                                    <label for="filter-date" class="block text-sm font-medium">Data</label>
+                                    <input type="date" id="filter-date" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm">
+                                </div>
+
+                                <div class="flex-1">
+                                    <label for="filter-room" class="block text-sm font-medium">Stanza</label>
+                                    <select id="filter-room" class="w-full p-2 rounded --bg-table-header border border-gray-600 text-sm">
+                                        <option value="">Tutte</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="flex gap-4 mb-4">
+                                <button id="delete-selected-bookings" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded hidden" disabled>
+                                    Elimina Selezionati
+                                </button>
+                                <button id="edit-selected-bookings" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded hidden" disabled>
+                                    Modifica Selezionati
+                                </button>
+                                <div class="flex ml-2">
+                                    <button id="export-csv" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-l-lg text-sm focus:outline-none">
+                                        <i class="fas fa-download mr-1"></i>CSV
+                                    </button>
+                                    <button id="export-excel" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white font-medium rounded-r-lg text-sm focus:outline-none">
+                                        <i class="fas fa-file-excel mr-1"></i>XLSX
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Riepilogo delle prenotazioni selezionate -->
+                            <div class="text-sm text-gray-400 mb-4">
+                                Prenotazioni selezionate: <span id="selected-count">0</span>
+                            </div>
+                            <!--  Tabella -->
+                            <div class="overflow-x-auto">
+
+                                <table class="min-w-full table-auto">
+                                    <thead class="--bg-table-header">
+                                        <tr>
+                                            <th class="p-2">
+                                                <input type="checkbox" id="select-all-user-bookings" class="rounded border-gray-400 text-blue-600 focus:ring-blue-500">
+                                            </th>
+                                            <th class="p-2 text-left">Utente</th>
+                                            <th class="p-2 text-left">Data</th>
+                                            <th class="p-2 text-left">Stanza</th>
+                                            <th class="p-2 text-left">Slot</th>
+                                            <th class="p-2 text-left">Azioni</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="user-bookings-body"></tbody>
+                                </table>
+                                <!--controlli di paginazione nell'HTML-->
+                                <div class="flex justify-between items-center mt-4">
+                                    <div class="text-sm text-gray-400">
+                                        Pagina <span id="current-page">1</span> di <span id="total-pages">1</span>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button id="prev-page" class="px-3 py-1 --bg-table-header rounded hover:bg-gray-600">&lt;</button>
+                                        <button id="next-page" class="px-3 py-1 --bg-table-header rounded hover:bg-gray-600">&gt;</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <!-- Tab Content: Statistiche -->
+                        <div id="content-statistics" class="p-4 hidden">
+                            <!-- Filtri per le statistiche -->
+                            <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white dark:bg-gray-700 rounded-lg">
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium --bg-table-header" for="stats-filter-user">
+
+                                        Utente
+                                    </label>
+                                    <select id="stats-filter-user" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg block w-full p-2.5">
+                                        <option value="">Tutti gli utenti</option>
+                                        <!-- Le opzioni verranno popolate dinamicamente -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium --bg-table-header" for="stats-filter-date-from">
+                                        Data Inizio
+                                    </label>
+                                    <input type="date" id="stats-filter-date-from" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg block w-full p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium --bg-table-header" for="stats-filter-date-to">
+                                        Data Fine
+                                    </label>
+                                    <input type="date" id="stats-filter-date-to" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg block w-full p-2.5">
+                                </div>
+                                <div>
+                                    <label class="block mb-2 text-sm font-medium --bg-table-header" for="stats-filter-room">
+                                        Stanza
+                                    </label>
+                                    <select id="stats-filter-room" class="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg block w-full p-2.5">
+                                        <option value="all">Tutte le stanze</option>
+                                        <!-- Le opzioni delle stanze verranno caricate dinamicamente -->
+                                    </select>
+                                </div>
+                                <div class="md:col-span-3 flex justify-between">
+                                    <button id="apply-stats-filters" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm focus:outline-none">
+                                        Applica Filtri
+                                    </button>
+                                    <button id="export-stats-xlsx" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg text-sm focus:outline-none">
+                                        <i class="fas fa-file-excel mr-2"></i>Esporta in Excel
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Contenitore per le statistiche -->
+                            <div id="statistics-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Le card delle statistiche verranno generate dinamicamente -->
+                            </div>
+                        </div>
+                    </div>
+                    
+</body>
+
+</html>

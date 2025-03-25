@@ -1,0 +1,205 @@
+/* Applica le variabili a tutto il gestionale */
+#confirmationModal {
+  z-index: 9999 !important; /* Sopra tutto */
+}
+  body {
+    background-color: var(--bg-body);
+    color: var(--text-color);
+  }
+
+  /* Sidebar */
+  aside#sidebar {
+    background-color: var(--bg-sidebar);
+    color: var(--text-color);
+  }
+
+  /* Container principali (es. form e riepilogo prenotazioni) */
+  .bg-gray-800 {
+    background-color: var(--bg-container-dark);
+  }
+
+  .bg-gray-700 {
+    background-color: var(--bg-container);
+  }
+
+  /* Testi */
+  .text-gray-200 {
+    color: var(--text-color);
+  }
+
+  .text-gray-400 {
+    color: var(--text-secondary);
+  }
+
+  /* Bottoni */
+  .bg-blue-600 {
+    background-color: var(--btn-primary);
+  }
+
+  .hover\:bg-blue-700:hover {
+    background-color: var(--btn-primary-hover);
+  }
+
+  .bg-blue-300 {
+    background-color: var(--desk-afternoon);
+  }
+
+  .bg-blue-900 {
+    background-color: var(--desk-full-day);
+  }
+
+  .bg-red-600 {
+    background-color: var(--btn-danger);
+  }
+/* Applica le variabili a tutto il gestionale */
+  body {
+    background-color: var(--bg-body);
+    color: var(--text-color);
+  \}
+
+  /* Sidebar */
+  aside#sidebar {
+    background-color: var(--bg-sidebar);
+    color: var(--text-color);
+
+
+
+  .hover\:bg-red-700:hover {
+    background-color: var(--btn-danger-hover);
+  }
+
+  /* Bordi */
+  .border-gray-600 {
+    border-color: var(--border-color);
+  }
+
+  .border-gray-700 {
+    border-color: var(--border-color-dark);
+  }
+
+  .border-gray-400 {
+    border-color: var(--border-color-light);
+  }
+
+  /* Tabelle */
+  .bg-gray-700\/thead {
+    background-color: var(--bg-table-header);
+  }
+
+  .hover\:bg-gray-600:hover {
+    background-color: var(--bg-table-hover);
+  }
+
+  tr:hover {
+    background-color: var(--bg-table-row-hover);
+  }
+
+  /* Link */
+  .text-blue-400 {
+    color: var(--link-color);
+  }
+
+  .hover\:text-blue-600:hover {
+    color: var(--link-hover);
+  }
+
+  /* Ombre */
+  .shadow-md {
+    box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color);
+  }
+
+  /* Input (es. calendario) */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+  }
+
+  [data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+  }
+
+  /* Icone FontAwesome */
+  .fa-times {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Transizioni */
+  .modal-transition {
+    transition: opacity 0.3s ease;
+  }
+
+  .transition-opacity {
+    transition: opacity 0.3s ease;
+  }
+  /* Stile per il tasto cerchio */
+#profile-btn {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border: 2px solid var(--border-color);
+}
+
+#profile-btn:hover {
+  background-color: var(--btn-primary-hover);
+}
+
+/* Assicurati che l'immagine si adatti al cerchio */
+#user-profile-pic {
+  display: none; /* Nascosta di default, mostrata solo se c'è una foto */
+}
+
+/* Anteprima foto nella modale */
+#profile-picture-preview {
+  border: 1px solid var(--border-color);
+}
+/* Colore del testo secondario */
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+/* Assicura che il contenitore della sezione usi lo sfondo corretto */
+#user-bookings-section {
+  background-color: var(--bg-container-dark);
+}
+
+/* Icone nel toggle */
+#toggle-user-bookings i {
+  color: var(--text-secondary);
+}
+
+/* Transizione per l'icona (opzionale) */
+#toggle-user-bookings i {
+  transition: transform 0.3s ease;
+}
+
+/* Ruota l'icona quando il contenuto è visibile */
+#toggle-user-bookings.active i {
+  transform: rotate(90deg);
+}
+#toggle-user-bookings:hover {
+  color: var(--link-color);
+}
+
+#toggle-user-bookings:hover i {
+  color: var(--link-color);
+}
+/* Stile per il pulsante Annulla */
+#confirmationCancel {
+  background-color: var(--btn-cancel);
+  color: var(--text-on-light);
+}
+
+#confirmationCancel:hover {
+  background-color: var(--btn-cancel-hover);
+}
+
+/* Variabili per il tema dark e light */
+:root {
+  --btn-cancel: #4b5563; /* bg-gray-600, default per tema dark */
+  --btn-cancel-hover: #374151; /* bg-gray-700, hover per tema dark */
+}
+
+[data-theme="light"] {
+  --btn-cancel: #d1d5db; /* bg-gray-300, grigio chiaro per tema light */
+  --btn-cancel-hover: #9ca3af; /* bg-gray-400, hover grigio medio */
+}
