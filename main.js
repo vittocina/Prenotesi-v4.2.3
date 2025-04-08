@@ -3787,7 +3787,7 @@ function calculateHolidaysAndPermits(data = {}) {
     if (company === 'progesi') {
         monthsMatured = currentDay >= 5 ? currentMonth : currentMonth - 1;
     } else if (company === 'bvtech' || company === 'tbridge') {
-        monthsMatured = currentDay >= 27 ? currentMonth + 1 : currentMonth;
+        monthsMatured = currentDay >= 27 ? currentMonth - 1 : currentMonth;
     } else {
         monthsMatured = currentDay >= 5 ? currentMonth : currentMonth - 1;
     }
